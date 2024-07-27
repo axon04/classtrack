@@ -1,7 +1,6 @@
-package com.axon;
+package com.axon.dbOps;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
@@ -10,10 +9,10 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class Inserter {
+public class Populator {
     private Connection conn;
 
-    public Inserter(String url, String username, String password) throws SQLException {
+    public Populator(String url, String username, String password) throws SQLException {
         conn = DriverManager.getConnection(url, username, password);
     }
 

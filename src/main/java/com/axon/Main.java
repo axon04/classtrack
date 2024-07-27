@@ -1,6 +1,8 @@
 package com.axon;
 
-import java.io.File;
+import com.axon.dbOps.Populator;
+import com.axon.dbOps.QueryExecutor;
+
 import java.sql.*;
 
 public class Main {
@@ -16,11 +18,13 @@ public class Main {
         // Then comment the createTables and uncomment these below
         // one by one, and run, to set up ta database
         try{
-            Inserter inserter = new Inserter(url, username, password);
-//            inserter.populateSubjects();
-//            inserter.populateSlots();
-//            inserter.populateRoutine();
-//            inserter.populateAttendance();
+            Populator populator = new Populator(url, username, password);
+//            populator.populateSubjects();
+//            populator.populateSlots();
+//            populator.populateRoutine();
+//            populator.populateAttendance();
+            QueryExecutor queryExecutor = new QueryExecutor(url, username, password);
+                queryExecutor.getRoutineForDay("FRI");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

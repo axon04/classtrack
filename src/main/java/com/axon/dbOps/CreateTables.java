@@ -1,4 +1,4 @@
-package com.axon;
+package com.axon.dbOps;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
