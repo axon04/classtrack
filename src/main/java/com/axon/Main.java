@@ -20,7 +20,7 @@ public class Main {
 //            inserter.populateSubjects();
 //            inserter.populateSlots();
 //            inserter.populateRoutine();
-            System.out.println(password);
+//            inserter.populateAttendance();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

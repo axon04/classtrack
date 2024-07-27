@@ -1,10 +1,13 @@
 package com.axon;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 
 public class Inserter {
@@ -84,8 +87,73 @@ public class Inserter {
         }
     }
 
-    // TODO: inserting attendance yet to be implemented
+    //  Class for using in hashmap
+    private static class RoutineKey {
+        private final String day;
+        private final Time startTime;
+
+        public RoutineKey(String day, Time startTime) {
+            this.day = day;
+            this.startTime = startTime;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RoutineKey that = (RoutineKey) o;
+            return day.equals(that.day) && startTime.equals(that.startTime);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(day, startTime);
+        }
+    }
+
+    private Map<RoutineKey, Integer> routineMap = new HashMap<>();
+
+    //  Method to load routine in HashMap
+    private void loadRoutine() {
+        String routineQuery = """
+                SELECT RoutineID, Day, StartTime
+                FROM Routine
+                JOIN Slots ON Routine.SlotID = Slots.SlotID;
+                """;
+        try(PreparedStatement getRoutine = conn.prepareStatement(routineQuery);
+            ResultSet rsRoutine = getRoutine.executeQuery()) {
+            while(rsRoutine.next()) {
+                RoutineKey key = new RoutineKey(rsRoutine.getString("Day"), rsRoutine.getTime("StartTime"));
+                routineMap.put(key, rsRoutine.getInt("RoutineID"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // * Insert data into attendance
     public void populateAttendance() {
-        String routineQuery = "SELECT * FROM routine";
+        //  1. Get the routine inside a hashmap
+        //  2. Create records in text file
+        //  3. Load the routine
+        //  4. Add batch to prepareStatement and execute
+        loadRoutine();
+        String insertQuery = "INSERT INTO Attendance(RoutineID, Date, AttendanceStatus) VALUES (?, ?, ?)";
+        try(PreparedStatement setAttendance = conn.prepareStatement(insertQuery);
+            BufferedReader br = new BufferedReader(new FileReader("src/main/resources/data/attendance.txt"))) {
+            String line;
+            while((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                int routineId = routineMap.get(new RoutineKey(values[0], Time.valueOf(values[1])));
+                setAttendance.setInt(1, routineId);
+                setAttendance.setDate(2, Date.valueOf(values[2]));
+                setAttendance.setString(3, values[3]);
+                setAttendance.addBatch();
+            }
+            setAttendance.executeBatch();
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
