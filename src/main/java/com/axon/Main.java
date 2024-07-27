@@ -16,7 +16,7 @@ public class Main {
 //        CreateTables createTables = new CreateTables(url, username, password);
 
         // Then comment the createTables and uncomment these below
-        // one by one, and run, to set up ta database
+        // one by one, and run, to set up the database
         try{
             Populator populator = new Populator(url, username, password);
 //            populator.populateSubjects();
@@ -25,6 +25,8 @@ public class Main {
 //            populator.populateAttendance();
             QueryExecutor queryExecutor = new QueryExecutor(url, username, password);
                 queryExecutor.getRoutineForDay("FRI");
+                queryExecutor.getTotalClasses("MCAN-E304F");
+                queryExecutor.getPresent("MCAN-E304F");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
